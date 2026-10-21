@@ -96,6 +96,25 @@ PY
 
 state_owns() { state_owned_paths | grep -Fxq -- "$1"; }
 
+# Ask once on an interactive install. An empty file means the user chose no personal label.
+configure_issue_label() {
+  _cil_file=$1
+  _cil_yes=$2
+  if [ -e "$_cil_file" ] || [ -L "$_cil_file" ]; then return 0; fi
+  if [ "$_cil_yes" = 1 ]; then
+    warn "personal GitHub issue label not configured; rerun install interactively to choose one"
+    return 0
+  fi
+  printf 'Name to use as a GitHub issue label (blank for none): ' >&2
+  if ! IFS= read -r _cil_name; then
+    warn "no personal issue label entered; rerun install to choose one"
+    return 0
+  fi
+  mkdir -p "$(dirname -- "$_cil_file")"
+  printf '%s\n' "$_cil_name" > "$_cil_file"
+  state_record file "$_cil_file"
+}
+
 # backup <path> — snapshot anything we are about to displace. No-op if absent.
 backup() {
   [ -e "$1" ] || [ -L "$1" ] || return 0

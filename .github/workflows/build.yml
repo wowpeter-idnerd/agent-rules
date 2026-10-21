@@ -34,12 +34,16 @@ jobs:
       - name: shellcheck
         run: |
           sudo apt-get update -qq && sudo apt-get install -y shellcheck
-          shellcheck -x -s sh bin/airules lib/common.sh scripts/sync-vendor.sh
+          shellcheck -x -s sh bin/airules lib/common.sh scripts/sync-vendor.sh tests/test_issue_label.sh
+
+      - name: Issue-label first-install behavior
+        run: sh tests/test_issue_label.sh
 
       - name: Smoke test — clean HOME, install then uninstall
         run: |
           export HOME=$(mktemp -d)
           ./bin/airules install --repo "$GITHUB_WORKSPACE" --no-schedule --yes
+          test ! -e "$HOME/.config/airules/issue-label"
           ./bin/airules status
           ./bin/airules doctor
           ./bin/airules uninstall --purge
