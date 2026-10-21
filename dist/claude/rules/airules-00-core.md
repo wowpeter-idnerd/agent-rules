@@ -271,6 +271,11 @@ If you wrote 200 lines and it could be 50, rewrite it before showing it.
 Maximum three attempts with the same approach. If a strategy fails three times you are looking at
 the wrong thing — change strategy, do not retry.
 
+## GitHub issue tracking
+
+Every new GitHub issue, including a Wayfinder map or ticket, must carry both `plane` and `Peter W`
+labels so Plane can monitor it. Create either missing label before opening the issue.
+
 # Design defaults
 
 These are defaults, not guardrails. Rules 00-40 always win, and an explicit instruction from the

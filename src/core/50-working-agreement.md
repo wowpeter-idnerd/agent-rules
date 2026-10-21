@@ -30,6 +30,9 @@ digest: |
   handling for impossible scenarios.
 
   **Persistence.** Max three attempts with one approach; then change strategy, don't retry.
+
+  **GitHub issues.** Label every new issue, including Wayfinder maps and tickets, `plane` and
+  `Peter W`. Create either label first if absent.
 ---
 
 # Working agreement
@@ -100,3 +103,8 @@ If you wrote 200 lines and it could be 50, rewrite it before showing it.
 
 Maximum three attempts with the same approach. If a strategy fails three times you are looking at
 the wrong thing — change strategy, do not retry.
+
+## GitHub issue tracking
+
+Every new GitHub issue, including a Wayfinder map or ticket, must carry both `plane` and `Peter W`
+labels so Plane can monitor it. Create either missing label before opening the issue.

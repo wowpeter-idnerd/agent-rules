@@ -204,6 +204,9 @@ handling for impossible scenarios.
 
 **Persistence.** Max three attempts with one approach; then change strategy, don't retry.
 
+**GitHub issues.** Label every new issue, including Wayfinder maps and tickets, `plane` and
+`Peter W`. Create either label first if absent.
+
 # Design defaults
 
 Advisory, not guardrails: rules 00-40 always win, and the human's instruction wins over these.
