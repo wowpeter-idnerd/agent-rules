@@ -31,6 +31,12 @@ git clone https://github.com/wowpeter-idnerd/agent-rules.git ~/.local/share/airu
 Start a new session (or `/clear`) to load the rules. Add `~/.local/bin` to your `PATH` if the
 installer says so — desktop apps recover `PATH` from your shell profile.
 
+On the first interactive install, the installer asks for an optional name to use as a GitHub issue
+label. It saves the answer in `~/.config/airules/issue-label` (or under `XDG_CONFIG_HOME`). New
+issues always receive `plane`; they also receive the saved name label when it is non-empty. A
+non-interactive `--yes` install skips the prompt and uses `plane` alone until a later interactive
+install. Edit the saved file to change the name; an empty file disables the personal label.
+
 **These are one team's rules.** They are opinionated on purpose. Fork the repo, edit `src/`, and
 make them yours — see [docs/CUSTOMIZING.md](docs/CUSTOMIZING.md).
 
@@ -45,6 +51,7 @@ make them yours — see [docs/CUSTOMIZING.md](docs/CUSTOMIZING.md).
 | `~/.codex/AGENTS.md` | core rules inline + pointers to the rest |
 | `~/.codex/config.toml` | a managed block raising `project_doc_max_bytes` |
 | `~/.claude/settings.json` | four `SessionStart` hooks, merged — never overwritten |
+| `~/.config/airules/issue-label` | optional personal GitHub issue label chosen on first interactive install |
 
 Files are **copied, not symlinked**: Claude Code has documented failures loading symlinked
 user-level skills, and its auto-updater has been observed removing user symlinks from

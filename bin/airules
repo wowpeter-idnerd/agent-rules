@@ -34,6 +34,7 @@ BACKUP_DIR=${BACKUP_DIR:-$AIRULES_STATE/backups/$(date -u +%Y%m%dT%H%M%SZ)}
 CLAUDE_DIR=$HOME/.claude
 CODEX_DIR=$HOME/.codex
 AGENTS_SKILLS=$HOME/.agents/skills
+ISSUE_LABEL_FILE=${XDG_CONFIG_HOME:-$HOME/.config}/airules/issue-label
 
 # shellcheck source-path=SCRIPTDIR
 # shellcheck source=../lib/common.sh
@@ -193,7 +194,7 @@ PLIST
 }
 
 cmd_install() {
-  DRY=0; NO_HOOKS=0; NO_SCHED=0
+  DRY=0; NO_HOOKS=0; NO_SCHED=0; ASSUME_YES=0
   while [ $# -gt 0 ]; do
     case $1 in
       --repo) AIRULES_REPO=$(abspath "$2"); DIST=$AIRULES_REPO/dist; shift 2 ;;
@@ -201,7 +202,7 @@ cmd_install() {
       --no-codex) AIRULES_NO_CODEX=1; export AIRULES_NO_CODEX; shift ;;
       --no-schedule) NO_SCHED=1; shift ;;
       --dry-run) DRY=1; shift ;;
-      --yes|-y|--force) shift ;;
+      --yes|-y|--force) ASSUME_YES=1; shift ;;
       *) die "unknown flag: $1" ;;
     esac
   done
@@ -215,10 +216,14 @@ cmd_install() {
     log "  render -> $CODEX_DIR/AGENTS.md"
     log "  merge -> $CLAUDE_DIR/settings.json (SessionStart hooks)"
     log "  patch -> $CODEX_DIR/config.toml (project_doc_max_bytes)"
+    if [ ! -e "$ISSUE_LABEL_FILE" ] && [ ! -L "$ISSUE_LABEL_FILE" ] && [ "$ASSUME_YES" = 0 ]; then
+      log "  prompt -> personal GitHub issue label (optional)"
+    fi
     return 0
   fi
 
   install_artifacts
+  configure_issue_label "$ISSUE_LABEL_FILE" "$ASSUME_YES"
   [ "$NO_HOOKS" = 1 ] || install_hooks
   [ "$NO_SCHED" = 1 ] || install_schedule
   state_set last_check 0

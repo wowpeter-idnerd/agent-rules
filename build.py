@@ -401,7 +401,7 @@ def build_book_skills(errors: list[str]) -> list[Path]:
             f"{HOUSE_OVERRIDES}\n"
             + ("\n## Deeper reference\n\n" + "\n".join(refs) + "\n" if refs else "")
         )
-        (out_dir / "SKILL.md").write_text(doc, encoding="utf-8")
+        (out_dir / "SKILL.md").write_text(doc, encoding="utf-8", newline="\n")
         made.append(out_dir)
     return made
 
@@ -417,7 +417,7 @@ def budget(label: str, path: Path, cap: int, errors: list[str]) -> dict:
     n = path.stat().st_size
     if n > cap:
         errors.append(f"{label}: {n} B exceeds the {cap} B budget (over by {n - cap} B)")
-    return {"file": str(path.relative_to(ROOT)), "bytes": n, "budget": cap}
+    return {"file": path.relative_to(ROOT).as_posix(), "bytes": n, "budget": cap}
 
 
 def main() -> int:
@@ -477,28 +477,30 @@ def main() -> int:
     (DIST / "skills").mkdir(parents=True)
 
     core_out = DIST / "claude" / "rules" / "airules-00-core.md"
-    core_out.write_text(render_claude_core(core), encoding="utf-8")
+    core_out.write_text(render_claude_core(core), encoding="utf-8", newline="\n")
 
     scoped_bytes = 0
     for path, fm, body in scoped:
         out = DIST / "claude" / "rules" / f"airules-{slug(path)}.md"
         try:
-            out.write_text(render_scoped_rule(fm, body), encoding="utf-8")
+            out.write_text(render_scoped_rule(fm, body), encoding="utf-8", newline="\n")
         except BuildError as exc:
             errors.append(f"{path.relative_to(ROOT)}: {exc}")
             continue
         scoped_bytes += out.stat().st_size
 
-    (DIST / "claude" / "CLAUDE.md").write_text(render_claude_stub(), encoding="utf-8")
+    (DIST / "claude" / "CLAUDE.md").write_text(render_claude_stub(), encoding="utf-8", newline="\n")
 
     house_skill_dirs = sorted(d for d in (SRC / "skills").glob("*") if d.is_dir())
     for d in house_skill_dirs:
         shutil.copytree(d, DIST / "skills" / d.name)
+        for markdown in (DIST / "skills" / d.name).rglob("*.md"):
+            markdown.write_text(markdown.read_text(encoding="utf-8"), encoding="utf-8", newline="\n")
     book_dirs = build_book_skills(errors)
 
     codex_out = DIST / "codex" / "AGENTS.md"
-    codex_out.write_text(render_codex(core, scoped, house_skill_dirs + book_dirs), encoding="utf-8")
-    (DIST / "agents" / "AGENTS.md").write_text(render_agents_generic(core, scoped), encoding="utf-8")
+    codex_out.write_text(render_codex(core, scoped, house_skill_dirs + book_dirs), encoding="utf-8", newline="\n")
+    (DIST / "agents" / "AGENTS.md").write_text(render_agents_generic(core, scoped), encoding="utf-8", newline="\n")
 
     budgets = [
         budget("dist/claude/rules/airules-00-core.md", core_out, BUDGET_CLAUDE_CORE, errors),
@@ -508,7 +510,7 @@ def main() -> int:
         errors.append(f"scoped layer: {scoped_bytes} B exceeds the {BUDGET_SCOPED_TOTAL} B budget")
 
     artifacts = {
-        str(p.relative_to(DIST)): {"sha256": sha256(p), "bytes": p.stat().st_size}
+        p.relative_to(DIST).as_posix(): {"sha256": sha256(p), "bytes": p.stat().st_size}
         for p in sorted(DIST.rglob("*"))
         if p.is_file()
     }
@@ -527,6 +529,7 @@ def main() -> int:
         )
         + "\n",
         encoding="utf-8",
+        newline="\n",
     )
 
     for e in errors:
